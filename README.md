@@ -208,42 +208,40 @@ spotify:
   client_secret: CLIENT_SECRET
 ```
 
-* The `beet plexsonic` command allows you to create AI-based playlists using an OpenAI-compatible language model. To use this feature, you will need to configure the AI model with an API key. Once you have obtained an API key, you can configure `beets` to use it by adding the following to your `config.yaml` file:
+* The `beet plexsonic` command creates AI-based playlists and reads the top-level `llm` settings (`llm.api_key`, `llm.model`, `llm.base_url`).
+
+  **OpenAI/OpenAI-compatible example:**
 
   ```yaml
   llm:
-      api_key: API_KEY
-      model: "gpt-3.5-turbo"
-      base_url: "https://api.openai.com/v1"  # Optional, for other providers
-      search:
-        # provider is auto-detected: OpenAI if llm.api_key is set, otherwise Ollama
-        # Explicitly set to "ollama" if you want to use Ollama instead
-        brave_api_key: "your-brave-api-key"               # Optional Brave Search API key
-        searxng_host: "http://your-searxng-instance.com"  # Optional SearxNG instance
-        exa_api_key: "your-exa-api-key"                   # Optional Exa search API key
-        tavily_api_key: "your-tavily-api-key"             # Optional Tavily API key
-        # Advanced: Override settings from main llm config
-        # api_key: ""           # Uses llm.api_key if empty
-        # base_url: ""          # Uses llm.base_url if empty
-        # model: ""             # Uses llm.model if empty (for OpenAI) or "qwen3:latest" (for Ollama)
-        # ollama_host: "http://localhost:11434"  # Only used when provider is "ollama"
+    api_key: YOUR_API_KEY
+    model: "gpt-4.1-mini"
+    base_url: "https://api.openai.com/v1"  # Optional for OpenAI-compatible endpoints
   ```
 
-  **Using OpenAI or OpenAI-compatible APIs for search:**
-  
-  The plugin automatically uses OpenAI-compatible models (via OpenAILike) for LLM search if you have `llm.api_key` configured. No additional configuration needed!
-  
-  **Simple configuration** (auto-detects OpenAI):
+  **Ollama example for `plexsonic`:**
+  ```yaml
+  llm:
+    api_key: "ollama"  # Placeholder value required by the OpenAI client
+    model: "qwen3:latest"
+    base_url: "http://localhost:11434/v1"
+  ```
+
+  **LLM-powered track matching/search (optional):**
+
+  The optional search cleanup pipeline (`plexsync.use_llm_search: yes`) uses `llm.search.*` settings from `beetsplug/ai/llm.py`.
+
+  **Simple configuration** (auto-detects OpenAI if `llm.api_key` is set, otherwise Ollama):
   ```yaml
   llm:
     api_key: YOUR_OPENAI_API_KEY
-    model: "gpt-4.1-mini"  # Or your preferred model
-    base_url: "https://api.openai.com/v1"  # Or your preferred endpoint
+    model: "gpt-4.1-mini"
+    base_url: "https://api.openai.com/v1"
     search:
       brave_api_key: "your-brave-api-key"  # At least one search provider is required
   ```
-  
-  **Using Ollama instead** (explicit override):
+
+  **Using Ollama for search cleanup** (explicit override):
   ```yaml
   llm:
     search:
@@ -252,6 +250,8 @@ spotify:
       ollama_host: "http://localhost:11434"
       brave_api_key: "your-brave-api-key"
   ```
+
+  Common pitfall: setting only `llm.search.provider: "ollama"` does not change `beet plexsonic`; that command reads only top-level `llm.*` values.
   
   **Advanced: Override search-specific settings**:
   ```yaml
@@ -319,7 +319,7 @@ spotify:
 ## Advanced
 Plex matching may be less than perfect and it can miss tracks if the tags don't match perfectly. There are few tools you can use to improve searching:
 * You can enable manual search to improve the matching by enabling `manual_search` in your config (default: `False`).
-* You can enable LLM-powered search using Ollama with optional integration for SearxNG, Exa, or Tavily (used in that order if all of them are configured). This provides intelligent search capabilities that can better match tracks with incomplete or variant metadata. See the `llm` configuration section above.
+* You can enable LLM-powered search cleanup with Ollama or OpenAI-compatible models, with optional integration for SearxNG, Exa, Brave, or Tavily (used in that order if all of them are configured). This provides intelligent search capabilities that can better match tracks with incomplete or variant metadata. See the `llm` configuration section above.
 
 ```yaml
 plexsync:

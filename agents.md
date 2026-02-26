@@ -94,6 +94,8 @@ PY
   ```
 
 ## LLM Configuration Notes
+- `beet plexsonic` uses top-level `llm.*` settings (`api_key`, `model`, `base_url`)
+- `llm.search.*` is used only for LLM search cleanup when `plexsync.use_llm_search` is enabled
 - Auto-detect provider:
   - If llm.api_key is set: OpenAI-compatible via agno.models.openai.like.OpenAILike
   - Else: Ollama via agno.models.ollama.Ollama
